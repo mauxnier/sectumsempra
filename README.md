@@ -1,8 +1,8 @@
 # Sectumsempra
-Création d'un plugin Minecraft en 1.15.2 avec l'API Spigot pour le serveur [PoudlardRP](https://www.poudlardrp.fr/ ).
+Création d'un plugin Minecraft en 1.15.2 avec l'API Spigot pour le serveur [PoudlardRP](https://www.poudlardrp.fr/).
 
 ## Sujet
-Tu dois développer un plugins en 1.15.2 Spigot, sans bdd ni api, rien de très compliqué, néanmoins, met au profit toutes tes connaissances afin qu'on puisse savoir réellement ce que tu vaux :).
+Tu dois développer un plugins en 1.15.2 Spigot, sans bdd ni api, rien de très compliqué, néanmoins, met au profit toutes tes connaissances afin qu'on puisse savoir réellement ce que tu vaux 🙂.
 
 L'objectif de celui-ci est de faire un click gauche avec un bâton afin que ça lance un sortilège: une trainée de particule (+ ou - rectiligne), Impressionne nous.
 
