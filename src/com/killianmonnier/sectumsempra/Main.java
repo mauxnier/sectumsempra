@@ -18,6 +18,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,7 +40,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	@Override
 	public void onDisable() {
-		System.out.println("Plugin now shutdown");
+		System.out.println("Plugin is shutting down");
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -70,7 +72,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void sectumsempra(Player player) {
-		// Get the entity were the player is looking at
+		// Get the entity were the player is looking at.
 		LivingEntity opponent = null;
 		
 		for (Entity e : getEntitys(player)) {
@@ -81,10 +83,10 @@ public class Main extends JavaPlugin implements Listener {
         }
 		
 		if (opponent != null) {
-			// Incantation
+			// Incantation.
 			player.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + "Sectumsempra !");
 			
-			// Magic spell animation on the player
+			// Magic spell animation on the player.
 			Location playerLocation = player.getLocation();
 			
 			float a = 0;
@@ -99,16 +101,16 @@ public class Main extends JavaPlugin implements Listener {
 				player.getWorld().spawnParticle(Particle.SQUID_INK, second, 0, 0, 0, 0, 0);
 			}
 			
-			// Sectum : "couper"
+			// Sectum : lacerates.
 			opponent.damage((double) sectumDamage);
 			
-			// Sempra : "toujours"
-			// deprecated method I need to use Attribute.GENERIC_MAX_HEALTH.
+			// deprecated methods (below) I need to use Attribute.GENERIC_MAX_HEALTH.
+			// Sempra : forever.
 			if (opponent.getMaxHealth() > sectumDamage) {
 				opponent.setMaxHealth((double) opponent.getMaxHealth() - (double) sectumDamage);
 			}
 			
-			// Effect on the opponent
+			// Effect on the opponent.
 			PotionEffect wither = new PotionEffect(PotionEffectType.WITHER, 20*5, 1, true, true);
 			PotionEffect blindness = new PotionEffect(PotionEffectType.BLINDNESS, 20*15, 1, true, true);
 			PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 20*10, 1, true, true);
@@ -116,16 +118,16 @@ public class Main extends JavaPlugin implements Listener {
 			opponent.addPotionEffect(blindness);
 			opponent.addPotionEffect(slow);
 			
-			// Project the opponent in the air
+			// Project the opponent in the air.
 			opponent.setVelocity(player.getLocation().getDirection().multiply(1).setY(0.5));
 			
-			// Magic spell animation on the opponent
+			// Magic spell animation on the opponent.
 			Location opponentLocation = opponent.getLocation();
 			opponent.getWorld().playEffect(opponentLocation, Effect.STEP_SOUND, Material.REDSTONE_BLOCK);
 		}
 	}
 	
-	// return a boolean saying if the player is looking at a specific entity
+	// Return a boolean saying if the player is looking at a specific entity.
 	private boolean getLookingAt(Player player, LivingEntity livingEntity) {
 	    Location eye = player.getEyeLocation();
 	    Vector toEntity = livingEntity.getEyeLocation().toVector().subtract(eye.toVector());
@@ -134,7 +136,7 @@ public class Main extends JavaPlugin implements Listener {
 	    return dot > 0.99D;
 	}
 	
-	// return entitys in a field around the player
+	// Return entitys in a field around the player.
 	private List<Entity> getEntitys(Player player) {
 	    List<Entity> entitys = new ArrayList<Entity>();
 	    for (Entity e : player.getNearbyEntities(field, field, field)) {
@@ -147,7 +149,7 @@ public class Main extends JavaPlugin implements Listener {
 	    return entitys;
 	}
 	
-	// return a custom item named "The Elder Wand" when using the command /wand
+	// Return a custom item named "The Elder Wand" when using the command /wand.
 	public ItemStack getWand() {
 		ItemStack wand = new ItemStack(Material.STICK);
 		ItemMeta meta = wand.getItemMeta();
@@ -162,12 +164,12 @@ public class Main extends JavaPlugin implements Listener {
 		return wand;
 	}
 	
-	// return a boolean saying if an item as a specific type and name corresponding with the parameters
+	// Return a boolean saying if an item as a specific type and name corresponding with the parameters.
 	public boolean isItemWithName(ItemStack item, Material type, String name) {
 		return item != null && item.getType() == type && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(name);
 	}
 	
-	// method called when a player interact with something
+	// Method called when a player interact with something.
 	@EventHandler
 	public void onInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
@@ -177,6 +179,12 @@ public class Main extends JavaPlugin implements Listener {
 		if (isItemWithName(item, Material.STICK, "The Elder Wand") && action == Action.RIGHT_CLICK_AIR) {
 			sectumsempra(player);
 		}
+	}
+	
+	// Method called when a player join the server.
+	@EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+		this.getServer().broadcastMessage(ChatColor.DARK_GREEN + "Welcome and bienvenue ! You can use /wand to find a wand. Right-click with it dear Severus Snape !");
 	}
 	
 }
