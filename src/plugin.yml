@@ -7,6 +7,4 @@ author: Killian Monnier https://www.linkedin.com/in/killian-monnier/
 website: www.killianmonnier.com
 
 commands:
-  sectumsempra:
-    aliases: ss
   wand:

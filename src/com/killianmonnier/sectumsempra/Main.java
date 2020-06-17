@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -25,6 +27,9 @@ import org.bukkit.util.Vector;
 
 public class Main extends JavaPlugin implements Listener {
 	
+	public final int field = 30;
+	public final int sectumDamage = 5;
+	
 	@Override
 	public void onEnable() {
 		System.out.println("Plugin is loaded");
@@ -40,17 +45,7 @@ public class Main extends JavaPlugin implements Listener {
 		if (sender instanceof Player) {
 			Player player = (Player) sender;
 			
-			if (label.equalsIgnoreCase("sectumsempra") || label.equalsIgnoreCase("ss")) {
-				if (player.hasPermission("sectumsempra.use")) {
-					player.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + "Sectumsempra !");
-					sectumsempra(player);
-					return true;
-				}
-				
-				player.sendMessage(ChatColor.MAGIC + "" + ChatColor.BOLD + "This magical spell is prohibited by the Minister for Magic. Beware muggle !");
-				return true;
-				
-			} else if (label.equalsIgnoreCase("wand")) {
+			if (label.equalsIgnoreCase("wand")) {
 				if (player.getInventory().firstEmpty() == -1) {
 					// inventory is full
 					Location loc = player.getLocation();
@@ -75,9 +70,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void sectumsempra(Player player) {
-		// Incantation
-		player.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + "Sectumsempra !");
-		
+		// Get the entity were the player is looking at
 		LivingEntity opponent = null;
 		
 		for (Entity e : getEntitys(player)) {
@@ -88,29 +81,51 @@ public class Main extends JavaPlugin implements Listener {
         }
 		
 		if (opponent != null) {
-			// Effect on opponent
-			PotionEffect wither = new PotionEffect(PotionEffectType.WITHER, 20*10, 1, true, true);
-			PotionEffect blindness = new PotionEffect(PotionEffectType.BLINDNESS, 20*20, 1, true, true);
-			PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 20*15, 1, true, true);
+			// Incantation
+			player.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + "Sectumsempra !");
+			
+			// Magic spell animation on the player
+			Location playerLocation = player.getLocation();
+			
+			float a = 0;
+			
+			for (int i = 0; i < 10; i++) {
+				a += Math.PI / 16;
+				
+				Location first = playerLocation.clone().add(Math.sin(a), Math.cos(a) + 1, Math.cos(a));
+				Location second = playerLocation.clone().add(Math.sin(a + Math.PI), Math.cos(a) + 1, Math.cos(a + Math.PI));
+				
+				player.getWorld().spawnParticle(Particle.SQUID_INK, first, 0, 0, 0, 0, 0);
+				player.getWorld().spawnParticle(Particle.SQUID_INK, second, 0, 0, 0, 0, 0);
+			}
+			
+			// Sectum : "couper"
+			opponent.damage((double) sectumDamage);
+			
+			// Sempra : "toujours"
+			// deprecated method I need to use Attribute.GENERIC_MAX_HEALTH.
+			if (opponent.getMaxHealth() > sectumDamage) {
+				opponent.setMaxHealth((double) opponent.getMaxHealth() - (double) sectumDamage);
+			}
+			
+			// Effect on the opponent
+			PotionEffect wither = new PotionEffect(PotionEffectType.WITHER, 20*5, 1, true, true);
+			PotionEffect blindness = new PotionEffect(PotionEffectType.BLINDNESS, 20*15, 1, true, true);
+			PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 20*10, 1, true, true);
 			opponent.addPotionEffect(wither);
 			opponent.addPotionEffect(blindness);
 			opponent.addPotionEffect(slow);
 			
-			// Project opponent in the air
+			// Project the opponent in the air
 			opponent.setVelocity(player.getLocation().getDirection().multiply(1).setY(0.5));
+			
+			// Magic spell animation on the opponent
+			Location opponentLocation = opponent.getLocation();
+			opponent.getWorld().playEffect(opponentLocation, Effect.STEP_SOUND, Material.REDSTONE_BLOCK);
 		}
-		
-		// Magic spell animation
-		Location location = player.getLocation();
-		/*
-		PacketPlayOutWorldParticles packet = new PacketPlayOutWorldParticles("flame", true,
-				(float) location.getX(), (float) location.getY(), (float) location.getZ(),
-				0, 0, 0, 1);
-		*/
-		
-		//((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
 	}
 	
+	// return a boolean saying if the player is looking at a specific entity
 	private boolean getLookingAt(Player player, LivingEntity livingEntity) {
 	    Location eye = player.getEyeLocation();
 	    Vector toEntity = livingEntity.getEyeLocation().toVector().subtract(eye.toVector());
@@ -119,9 +134,10 @@ public class Main extends JavaPlugin implements Listener {
 	    return dot > 0.99D;
 	}
 	
+	// return entitys in a field around the player
 	private List<Entity> getEntitys(Player player) {
 	    List<Entity> entitys = new ArrayList<Entity>();
-	    for (Entity e : player.getNearbyEntities(10, 10, 10)) {
+	    for (Entity e : player.getNearbyEntities(field, field, field)) {
 	        if (e instanceof LivingEntity){
 	            if (getLookingAt(player, (LivingEntity) e)) {
 	                entitys.add(e);
@@ -130,7 +146,8 @@ public class Main extends JavaPlugin implements Listener {
 	    }
 	    return entitys;
 	}
-
+	
+	// return a custom item named "The Elder Wand" when using the command /wand
 	public ItemStack getWand() {
 		ItemStack wand = new ItemStack(Material.STICK);
 		ItemMeta meta = wand.getItemMeta();
@@ -145,17 +162,19 @@ public class Main extends JavaPlugin implements Listener {
 		return wand;
 	}
 	
+	// return a boolean saying if an item as a specific type and name corresponding with the parameters
 	public boolean isItemWithName(ItemStack item, Material type, String name) {
 		return item != null && item.getType() == type && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(name);
 	}
 	
+	// method called when a player interact with something
 	@EventHandler
 	public void onInteract(PlayerInteractEvent event) {
-		Player player = (Player) event.getPlayer();
+		Player player = event.getPlayer();
 		Action action = event.getAction();
 		ItemStack item = event.getItem();
 		
-		if (isItemWithName(item, Material.STICK, "The Elder Wand") && action == Action.LEFT_CLICK_AIR  || action == Action.LEFT_CLICK_BLOCK) {
+		if (isItemWithName(item, Material.STICK, "The Elder Wand") && action == Action.RIGHT_CLICK_AIR) {
 			sectumsempra(player);
 		}
 	}
