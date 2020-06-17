@@ -11,5 +11,7 @@ Quand cette fameuse trainée touche une entité, alors il faut que ça fasse que
 Fais marcher ta technique et ta créativité. Tu peux créer un sort de toute pièce ou essayer de reproduire un sort de la saga. Bref, encore une fois, Impressionne nous.
 
 ## Documentation
+- [Spigot API javadocs](https://hub.spigotmc.org/javadocs/spigot/overview-summary.html)
 - [Spigot Plugin Development for 1.15.x!](https://www.youtube.com/watch?v=r4W4drYdb4Q&list=PL65-DKRLvp3Yn7iglPfxKoc7bl0N80XgG)
-
+- [Minecraft - Créer un Plugin](https://www.youtube.com/watch?v=FPu3A99jvbg&list=PLMS9Cy4Enq5KConY5UFCV93A_5k76zcpS&index=1)
+- [How to detect an entity the player is looking at](https://www.spigotmc.org/threads/how-to-detect-an-entity-the-player-is-looking-at.139310)
