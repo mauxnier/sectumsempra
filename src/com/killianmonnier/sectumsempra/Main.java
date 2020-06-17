@@ -127,7 +127,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 	
-	// Return a boolean saying if the player is looking at a specific entity.
+	// Return a boolean telling if the player is looking at a specific entity.
 	private boolean getLookingAt(Player player, LivingEntity livingEntity) {
 	    Location eye = player.getEyeLocation();
 	    Vector toEntity = livingEntity.getEyeLocation().toVector().subtract(eye.toVector());
@@ -164,7 +164,7 @@ public class Main extends JavaPlugin implements Listener {
 		return wand;
 	}
 	
-	// Return a boolean saying if an item as a specific type and name corresponding with the parameters.
+	// Return a boolean telling if an item as a specific type and name corresponding with the parameters.
 	public boolean isItemWithName(ItemStack item, Material type, String name) {
 		return item != null && item.getType() == type && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(name);
 	}
