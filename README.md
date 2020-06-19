@@ -1,7 +1,7 @@
 # Sectumsempra
 Création d'un plugin Minecraft en 1.15.2 avec [l'API Spigot](https://github.com/SpigotMC/Spigot-API) pour le serveur [PoudlardRP](https://www.poudlardrp.fr/). Vous pouvez utiliser le maléfice [Sectumsempra](https://harrypotter.fandom.com/fr/wiki/Sectumsempra) ainsi que le sortilège [Meteorribilis Recanto](https://harrypotter.fandom.com/fr/wiki/Meteorribilis_recanto) à l'aide de la [Baguette de Sureau](https://harrypotter.fandom.com/fr/wiki/Baguette_de_Sureau).
 
-[![Watch the video](https://i.imgur.com/vKb2F1B.png)](https://www.youtube.com/watch?v=TPXiK7jY_Lk)
+[![Watch the video](https://github.com/paraceltus/sectumsempra/blob/master/img/bestMiniatureEver.png)](https://www.youtube.com/watch?v=TPXiK7jY_Lk)
 
 ## Utilisation
 Pour utiliser le plugin il ne vous faut que le fichier Sectumsempra.jar
