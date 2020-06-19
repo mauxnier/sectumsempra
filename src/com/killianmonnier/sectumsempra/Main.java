@@ -1,11 +1,7 @@
 package com.killianmonnier.sectumsempra;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.Timer;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -23,12 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.event.weather.ThunderChangeEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -45,11 +37,11 @@ public class Main extends JavaPlugin implements Listener {
 	public final int range = 30;
 	public final int sectumDamage = 5;
 	public final int spellsNumber = 2;
+	public final int hitbox = 3;
 	
 	public int actualSpell = 1;
 	public String[] spellsName = new String[] {"Sectumsempra", "Meteorribilis Recanto"};
-	public boolean isThunder = true; // for fixing a bug
-	public boolean isRaining;
+	public boolean isThunder, isRaining;
 	
 	@Override
 	public void onEnable() {
@@ -91,50 +83,11 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void sectumsempra(Player player) {
+		Location playerLocation = player.getLocation();
+		
 		// Incantation.
 		player.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + spellsName[0] + " !");
 		
-		new BukkitRunnable() {
-			Location playerLocation = player.getEyeLocation();
-			Location spellLocation = playerLocation;
-			Vector direction = playerLocation.getDirection().normalize();
-			DustOptions black = new DustOptions(Color.fromRGB(0), 1);
-			DustOptions red = new DustOptions(Color.fromRGB(255, 0, 0), 1);
-			DustOptions green = new DustOptions(Color.fromRGB(0, 255, 0), 1);
-			
-			double t = 0;
-			double xtrav, ytrav, ztrav;
-			double x, y, z;
-			
-			@Override
-			public void run() {
-				t += 0.5;
-				xtrav = direction.getX() * t;
-				ytrav = direction.getY() * t;
-				ztrav = direction.getZ() * t;
-				spellLocation.add(xtrav, ytrav, ztrav);
-				
-				for (double i = 0; i <= 2 * Math.PI; i += Math.PI / 32) {
-					x = Math.cos(t);
-					y = Math.cos(t);
-					z = Math.sin(t);
-					spellLocation.add(x, y, z);
- 
-					player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation, 0, black);
-					//player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation.clone().add(-0.2, -0.2, -0.2), 0, red);
-					//player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation.clone().add(0.2, 0.2, 0.2), 0, green);
-					spellLocation.subtract(x, y, z);
-				}
-				
-				spellLocation.subtract(xtrav, ytrav, ztrav);
- 
-				if (t > range) {
-					cancel();
-				}
-			}
-		}.runTaskTimer(getPlugin(Main.class), 0, 0);
-	}
-		/*
 		// Magic spell animation on the player.
 		double a = 0;
 		
@@ -148,23 +101,65 @@ public class Main extends JavaPlugin implements Listener {
 			player.getWorld().spawnParticle(Particle.SQUID_INK, second, 0, 0, 0, 0, 0);
 		}
 		
-		// Magic spell trail
-		double t = 0;
-		double x, y, z;
-		
-		for (int i = 0; i < 20; i++) {
-			t += Math.PI / 16;
-			x = Math.cos(t) + i;
-			y = Math.sin(t) + 1;
-			z = Math.sin(t) + i;
+		// Magic spell trail.
+		new BukkitRunnable() {
+			Location playerEyeLocation = player.getEyeLocation();
+			Location spellLocation = playerEyeLocation;
+			Vector direction = playerEyeLocation.getDirection().normalize();
+			DustOptions black = new DustOptions(Color.fromRGB(0), 1);
+			DustOptions red = new DustOptions(Color.fromRGB(255, 0, 0), 1);
+			LivingEntity opponent = null;
 			
-			Location spellLocation = playerLocation.clone().add(x, y, z);
+			double t = 0;
+			double xtrav, ytrav, ztrav;
+			double x, y, z;
 			
-			//player.getWorld().spawnParticle(Particle.SQUID_INK, spellLocation, 0, 0, 0, 0, 0);
-			DustOptions dustOptions = new DustOptions(Color.fromRGB(0), 1);
-			player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation, 0, dustOptions);
-		}
+			@Override
+			public void run() {
+				t += 0.5;
+				xtrav = direction.getX() * t;
+				ytrav = direction.getY() * t;
+				ztrav = direction.getZ() * t;
+				spellLocation.add(xtrav, ytrav, ztrav);
+				
+				// The black trail.
+				for (double i = 0; i <= 2 * Math.PI; i += Math.PI / 32) {
+					x = Math.cos(t);
+					y = Math.cos(t);
+					z = Math.sin(t);
+					spellLocation.add(x, y, z);
+					
+					player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation, 0, black);
+					spellLocation.subtract(x, y, z);
+				}
+				
+				// The red trail.
+				player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation, 0, red);
+				
+				// Detect a supposed opponent.
+				for (Entity entity : player.getNearbyEntities(range, range, range)) {
+					if (isSimilary(entity.getLocation().getX(), spellLocation.getX()) && isSimilary(entity.getLocation().getY(), spellLocation.getY()) && isSimilary(entity.getLocation().getZ(), spellLocation.getZ())) {
+						player.sendMessage("touché !");
+						opponent = (LivingEntity) entity;
+					}
+				}
+				
+				// Curse on the possible opponent.
+				if (opponent != null) {
+					player.sendMessage("aïe !!");
+				}
+				
+				spellLocation.subtract(xtrav, ytrav, ztrav);
+				 
+				if (t > range) {
+					cancel();
+				}
+				
+			}
+		}.runTaskTimer(getPlugin(Main.class), 0, 0);
 		
+	}
+		/*
 		if (opponent != null) {
 			// Sectum : lacerates.
 			opponent.damage((double) sectumDamage);
@@ -201,9 +196,19 @@ public class Main extends JavaPlugin implements Listener {
 		// Action.
 		if (isThunder || isRaining) {
 			player.performCommand("weather clear");
+			isRaining = false;
+			isThunder = false;
 		} else {
 			player.performCommand("weather thunder");
+			isRaining = false;
+			isThunder = true;
 		}
+	}
+	
+	// Return a boolean telling if a variable 'a' is similary to a variable 'b' in function to the hitbox.
+	private boolean isSimilary(double a, double b) {
+		if (Math.abs(a - b) < hitbox) return true;
+		return false;
 	}
 	
 	// Return a custom item named "The Elder Wand" when using the command /wand.
@@ -222,7 +227,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	// Return a boolean telling if an item as a specific type and name corresponding with the parameters.
-	public boolean isItemWithName(ItemStack item, Material type, String name) {
+	private boolean isItemWithName(ItemStack item, Material type, String name) {
 		return item != null && item.getType() == type && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().contains(name);
 	}
 	

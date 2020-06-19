@@ -19,3 +19,4 @@ Fais marcher ta technique et ta créativité. Tu peux créer un sort de toute pi
 - [Minecraft - Créer un Plugin](https://www.youtube.com/watch?v=FPu3A99jvbg&list=PLMS9Cy4Enq5KConY5UFCV93A_5k76zcpS&index=1)
 - [How to detect an entity the player is looking at](https://www.spigotmc.org/threads/how-to-detect-an-entity-the-player-is-looking-at.139310)
 - [Get direction the player is facing](https://www.spigotmc.org/threads/get-direction-the-player-is-facing.133491/)
+- [Best way to get nearby entities](https://stackoverflow.com/questions/38557412/best-way-to-get-nearby-entities)
