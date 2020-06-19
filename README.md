@@ -17,7 +17,7 @@ Fais marcher ta technique et ta créativité. Tu peux créer un sort de toute pi
 
 ## Documentation
 [Installation de Spigot](https://www.spigotmc.org/wiki/spigot-installation/)
-- [plugin.yml]](https://www.spigotmc.org/wiki/plugin-yml/)
+- [plugin.yml](https://www.spigotmc.org/wiki/plugin-yml/)
 - [Spigot API javadocs](https://hub.spigotmc.org/javadocs/spigot/overview-summary.html)
 - [Spigot Plugin Development for 1.15.x!](https://www.youtube.com/watch?v=r4W4drYdb4Q&list=PL65-DKRLvp3Yn7iglPfxKoc7bl0N80XgG)
 - [Minecraft - Créer un Plugin](https://www.youtube.com/watch?v=FPu3A99jvbg&list=PLMS9Cy4Enq5KConY5UFCV93A_5k76zcpS&index=1)
