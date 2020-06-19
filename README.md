@@ -5,6 +5,7 @@ Création d'un plugin Minecraft en 1.15.2 avec [l'API Spigot](https://github.com
 
 ## Utilisation
 Pour utiliser le plugin il ne vous faut que le fichier Sectumsempra.jar
+
 [Installation de Spigot](https://www.spigotmc.org/wiki/spigot-installation/)
 
 ## Sujet
