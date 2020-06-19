@@ -34,13 +34,13 @@ import org.bukkit.util.Vector;
 public class Main extends JavaPlugin implements Listener {
 	
 	// Manage spells.
-	public final int range = 30;
+	public final double range = 30.0;
 	public final int sectumDamage = 5;
-	public final int spellsNumber = 2;
-	public final int hitbox = 3;
+	public final int spellsNumber = 3;
+	public final double hitbox = 1;
 	
 	public int actualSpell = 1;
-	public String[] spellsName = new String[] {"Sectumsempra", "Meteorribilis Recanto"};
+	public String[] spellsName = new String[] {"Sectumsempra", "Meteorribilis Recanto", "Vulnera Sanentur"};
 	public boolean isThunder, isRaining;
 	
 	@Override
@@ -82,6 +82,7 @@ public class Main extends JavaPlugin implements Listener {
 		return false;
 	}
 	
+	// Spell damaging a LivingEntity.
 	public void sectumsempra(Player player) {
 		Location playerLocation = player.getLocation();
 		
@@ -114,6 +115,7 @@ public class Main extends JavaPlugin implements Listener {
 			double xtrav, ytrav, ztrav;
 			double x, y, z;
 			
+			@SuppressWarnings("deprecation")
 			@Override
 			public void run() {
 				t += 0.5;
@@ -137,21 +139,46 @@ public class Main extends JavaPlugin implements Listener {
 				player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation, 0, red);
 				
 				// Detect a supposed opponent.
-				for (Entity entity : player.getNearbyEntities(range, range, range)) {
-					if (isSimilary(entity.getLocation().getX(), spellLocation.getX()) && isSimilary(entity.getLocation().getY(), spellLocation.getY()) && isSimilary(entity.getLocation().getZ(), spellLocation.getZ())) {
-						player.sendMessage("touché !");
+				for (Entity entity : getEntitys(player, range)) {
+					if (isSimilary(entity.getLocation().getX(), spellLocation.getX()) && isSimilary(entity.getLocation().getY() + hitbox, spellLocation.getY()) && isSimilary(entity.getLocation().getZ(), spellLocation.getZ())) {
 						opponent = (LivingEntity) entity;
+						System.out.println("Target : " + opponent);
 					}
 				}
 				
 				// Curse on the possible opponent.
 				if (opponent != null) {
-					player.sendMessage("aïe !!");
+					// Sectum : lacerates.
+					opponent.damage((double) sectumDamage);
+					
+					// deprecated methods (below) I need to use Attribute.GENERIC_MAX_HEALTH.
+					// Sempra : forever.
+					if (opponent.getMaxHealth() > sectumDamage) {
+						opponent.setMaxHealth((double) opponent.getMaxHealth() - (double) sectumDamage);
+					}
+						
+					// Effect on the opponent.
+					PotionEffect wither = new PotionEffect(PotionEffectType.WITHER, 20*10, 2, false, false);
+					PotionEffect blindness = new PotionEffect(PotionEffectType.BLINDNESS, 20*30, 2, false, false);
+					PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 20*25, 3, false, false);
+					opponent.addPotionEffect(wither);
+					opponent.addPotionEffect(blindness);
+					opponent.addPotionEffect(slow);
+					
+					// Project the opponent in the air.
+					opponent.setVelocity(player.getLocation().getDirection().multiply(1).setY(0.5));
+					
+					// Magic spell animation on the opponent.
+					Location opponentLocation = opponent.getLocation();
+					opponent.getWorld().playEffect(opponentLocation, Effect.STEP_SOUND, Material.REDSTONE_BLOCK);
+					
+					// Stopping the spell.
+					t = range;
 				}
 				
 				spellLocation.subtract(xtrav, ytrav, ztrav);
 				 
-				if (t > range) {
+				if (t >= range) {
 					cancel();
 				}
 				
@@ -159,33 +186,8 @@ public class Main extends JavaPlugin implements Listener {
 		}.runTaskTimer(getPlugin(Main.class), 0, 0);
 		
 	}
-		/*
-		if (opponent != null) {
-			// Sectum : lacerates.
-			opponent.damage((double) sectumDamage);
-			
-			// deprecated methods (below) I need to use Attribute.GENERIC_MAX_HEALTH.
-			// Sempra : forever.
-			if (opponent.getMaxHealth() > sectumDamage) {
-				opponent.setMaxHealth((double) opponent.getMaxHealth() - (double) sectumDamage);
-			}
-				
-			// Effect on the opponent.
-			PotionEffect wither = new PotionEffect(PotionEffectType.WITHER, 20*5, 1, true, true);
-			PotionEffect blindness = new PotionEffect(PotionEffectType.BLINDNESS, 20*15, 1, true, true);
-			PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 20*10, 1, true, true);
-			opponent.addPotionEffect(wither);
-			opponent.addPotionEffect(blindness);
-			opponent.addPotionEffect(slow);
-			
-			// Project the opponent in the air.
-			opponent.setVelocity(player.getLocation().getDirection().multiply(1).setY(0.5));
-			
-			// Magic spell animation on the opponent.
-			Location opponentLocation = opponent.getLocation();
-			opponent.getWorld().playEffect(opponentLocation, Effect.STEP_SOUND, Material.REDSTONE_BLOCK);
-		}*/
 	
+	// Spell changing the weather.
 	public void meteorribilisRecanto(Player player) {
 		// Incantation.
 		player.sendMessage(ChatColor.DARK_AQUA + "" + ChatColor.ITALIC + spellsName[1] + " !");
@@ -200,14 +202,81 @@ public class Main extends JavaPlugin implements Listener {
 			isThunder = false;
 		} else {
 			player.performCommand("weather thunder");
-			isRaining = false;
 			isThunder = true;
 		}
 	}
 	
+	// Spell healing the LivingEntity the caster is looking at or healing the caster, Vulnera Sanentur : wounds healing.
+	public void vulneraSanentur(Player player) {
+		LivingEntity target = null;
+		boolean asOneTarget = false;
+		
+		// Incantation.
+		player.sendMessage(ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + spellsName[2] + " !");
+		
+		// Detect a supposed wounded the player is looking at.
+		for (Entity entity : getEntitys(player, 5.0)) {
+			if (!asOneTarget) {
+				target = (LivingEntity) entity;
+				System.out.println("Target : " + entity);
+				asOneTarget = true;
+			}
+		}
+		
+		// Healing the LivingEntity the caster is looking at.
+		if (target != null) {
+			// Animation.
+			target.getWorld().playEffect(target.getEyeLocation(), Effect.DRAGON_BREATH, 1);
+			
+			// Action.
+			PotionEffect heal = new PotionEffect(PotionEffectType.HEAL, 20*10, 5, false, false);
+			PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 20*5, 5, false, false);
+			target.addPotionEffect(heal);
+			target.addPotionEffect(slow);
+		}
+		
+		// Healing the caster.
+		else {
+			// Animation.
+			player.getWorld().playEffect(player.getEyeLocation(), Effect.DRAGON_BREATH, 1);
+			
+			// Action.
+			PotionEffect heal = new PotionEffect(PotionEffectType.HEAL, 20*10, 5, false, false);
+			PotionEffect slow = new PotionEffect(PotionEffectType.SLOW, 20*5, 5, false, false);
+			player.addPotionEffect(heal);
+			player.addPotionEffect(slow);
+		}
+		
+	}
+	
+	// Method telling if a player is looking in the direction of a LivingEntity.
+	private boolean getLookingAt(Player player, LivingEntity livingEntity){
+		Location eye = player.getEyeLocation();
+		Vector toEntity = livingEntity.getEyeLocation().toVector().subtract(eye.toVector());
+		double dot = toEntity.normalize().dot(eye.getDirection());
+		
+		return dot > 0.99D;
+	}
+	
+	// Method returning a list of all the LivingEntity in a field delimited by a range.
+	private List<Entity> getEntitys(Player player, double range){
+		List<Entity> entitys = new ArrayList<Entity>();
+		
+		for (Entity e : player.getNearbyEntities(range, range, range)){
+			if (e instanceof LivingEntity){
+				if (getLookingAt(player, (LivingEntity) e)){
+					entitys.add(e);
+				}
+			}
+		}
+		
+		return entitys;
+	}
+	
 	// Return a boolean telling if a variable 'a' is similary to a variable 'b' in function to the hitbox.
 	private boolean isSimilary(double a, double b) {
-		if (Math.abs(a - b) < hitbox) return true;
+		if ((a > 0 && b > 0) || (a < 0 && b < 0)) 
+			if (Math.abs(a - b) < hitbox) return true;
 		return false;
 	}
 	
@@ -245,6 +314,9 @@ public class Main extends JavaPlugin implements Listener {
 					break;
 				case 2:
 					meteorribilisRecanto(player);
+					break;
+				case 3:
+					vulneraSanentur(player);
 					break;
 				default:
 					System.err.println("Error on the variable actualSpell");

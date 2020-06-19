@@ -1,6 +1,6 @@
 main: com.killianmonnier.sectumsempra.Main
 name: Sectumsempra
-version: 1.0
+version: 1.3
 api-version: 1.15
 description: Juste un petit plugin Harry potter
 author: Killian Monnier https://www.linkedin.com/in/killian-monnier/
@@ -8,3 +8,17 @@ website: www.killianmonnier.com
 
 commands:
   wand:
+    description: give you a wand
+    permission: sectumsempra.wand
+    permission-message: You do not have permission!
+    usage: /<command>
+
+permissions:
+  sectumsempra.wand:
+   description: Allows wand command
+   default: op
+  sectumsempra.*:
+   description: Wildcard permission
+   default: op
+   children:
+     sectumsempra.wand: true
