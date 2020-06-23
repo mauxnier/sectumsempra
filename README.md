@@ -1,12 +1,12 @@
-# Sectumsempra
+# Sectumsempra 🧙‍♂️
 Création d'un plugin Minecraft en 1.15.2 avec [l'API Spigot](https://github.com/SpigotMC/Spigot-API) pour le serveur [PoudlardRP](https://www.poudlardrp.fr/). Vous pouvez utiliser le maléfice [Sectumsempra](https://harrypotter.fandom.com/fr/wiki/Sectumsempra) et le sort [Vulnera Sanentur](https://harrypotter.fandom.com/fr/wiki/Vulnera_Sanentur) ainsi que le sortilège [Meteorribilis Recanto](https://harrypotter.fandom.com/fr/wiki/Meteorribilis_recanto) à l'aide de la [Baguette de Sureau](https://harrypotter.fandom.com/fr/wiki/Baguette_de_Sureau).
 
 [![Watch the video](https://github.com/paraceltus/sectumsempra/blob/master/img/bestMiniatureEver.png)](https://www.youtube.com/watch?v=TPXiK7jY_Lk)
 
-## Utilisation
+## Utilisation 💻
 Pour utiliser le plugin il ne vous faut que le fichier Sectumsempra.jar
 
-## Sujet
+## Sujet 📖
 Tu dois développer un plugins en 1.15.2 Spigot, sans bdd ni api, rien de très compliqué, néanmoins, met au profit toutes tes connaissances afin qu'on puisse savoir réellement ce que tu vaux 🙂.
 
 L'objectif de celui-ci est de faire un click gauche avec un bâton afin que ça lance un sortilège: une trainée de particule (+ ou - rectiligne), Impressionne nous.
@@ -15,7 +15,7 @@ Quand cette fameuse trainée touche une entité, alors il faut que ça fasse que
 
 Fais marcher ta technique et ta créativité. Tu peux créer un sort de toute pièce ou essayer de reproduire un sort de la saga. Bref, encore une fois, Impressionne nous.
 
-## Documentation
+## Documentation 📚
 [Installation de Spigot](https://www.spigotmc.org/wiki/spigot-installation/)
 - [Utilisation de plugin.yml](https://www.spigotmc.org/wiki/plugin-yml/)
 - [Spigot API javadocs](https://hub.spigotmc.org/javadocs/spigot/overview-summary.html)
