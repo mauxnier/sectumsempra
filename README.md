@@ -4,8 +4,9 @@ Création d'un plugin Minecraft en 1.15.2 avec [l'API Spigot](https://github.com
 [![Watch the video](https://github.com/paraceltus/sectumsempra/blob/master/img/bestMiniatureEver.png)](https://www.youtube.com/watch?v=TPXiK7jY_Lk)
 
 ## Utilisation 💻
+Pour utiliser le plugin il ne vous faut que le fichier **Sectumsempra.jar** (à mettre dans le dossier *plugins* de votre serveur).
+
 [![Spigot](https://img.shields.io/badge/Download-🚿-orange.svg?style=for-the-badge)](https://www.spigotmc.org/resources/sectumsempra.81975/)
-Pour utiliser le plugin il ne vous faut que le fichier **Sectumsempra.jar** (à mettre dans le dossier *plugins* de votre serveur)
 
 ## Sujet 📖
 Tu dois développer un plugins en 1.15.2 Spigot, sans bdd ni api, rien de très compliqué, néanmoins, met au profit toutes tes connaissances afin qu'on puisse savoir réellement ce que tu vaux 🙂.
