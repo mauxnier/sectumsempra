@@ -3,14 +3,8 @@ package com.killianmonnier.sectumsempra;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.Effect;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -139,7 +133,7 @@ public class Main extends JavaPlugin implements Listener {
 				player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation, 0, red);
 				
 				// Detect a supposed opponent.
-				for (Entity entity : getEntitys(player, range)) {
+				for (Entity entity : getEntitysLooked(player, range)) {
 					if (isSimilary(entity.getLocation().getX(), spellLocation.getX()) && isSimilary(entity.getLocation().getY() + hitbox, spellLocation.getY()) && isSimilary(entity.getLocation().getZ(), spellLocation.getZ())) {
 						opponent = (LivingEntity) entity;
 						System.out.println("Target : " + opponent);
@@ -189,90 +183,19 @@ public class Main extends JavaPlugin implements Listener {
 
 	// Spell glowing a LivingEntity.
 	public void hominumRevelio(Player player) {
-		Location playerLocation = player.getLocation();
+		LivingEntity opponent = null;
+		Location eyeLocation = player.getEyeLocation();
 
-		// Incantation.
-		player.sendMessage(ChatColor.DARK_RED + "" + ChatColor.ITALIC + spellsName[3] + " !");
 
-		// Magic spell animation on the player.
-		double a = 0;
-
-		for (int i = 0; i < 10; i++) {
-			a += Math.PI / 16;
-
-			Location first = playerLocation.clone().add(Math.sin(a), Math.cos(a) + 1, Math.cos(a));
-			Location second = playerLocation.clone().add(Math.sin(a + Math.PI), Math.cos(a) + 1, Math.cos(a + Math.PI));
-
-			player.getWorld().spawnParticle(Particle.SQUID_INK, first, 0, 0, 0, 0, 0);
-			player.getWorld().spawnParticle(Particle.SQUID_INK, second, 0, 0, 0, 0, 0);
+		for (Entity entity : getEntitys(player, range)) {
+			opponent = (LivingEntity) entity;
+			PotionEffect glowing = new PotionEffect(PotionEffectType.GLOWING, 20*10, 2, false, false);
+			opponent.addPotionEffect(glowing);
 		}
 
-		// Magic spell trail.
-		new BukkitRunnable() {
-			Location playerEyeLocation = player.getEyeLocation();
-			Location spellLocation = playerEyeLocation;
-			Vector direction = playerEyeLocation.getDirection().normalize();
-			DustOptions black = new DustOptions(Color.fromRGB(0), 1);
-			DustOptions red = new DustOptions(Color.fromRGB(255, 0, 0), 1);
-			LivingEntity opponent = null;
-
-			double t = 0;
-			double xtrav, ytrav, ztrav;
-			double x, y, z;
-
-			@SuppressWarnings("deprecation")
-			@Override
-			public void run() {
-				t += 0.5;
-				xtrav = direction.getX() * t;
-				ytrav = direction.getY() * t;
-				ztrav = direction.getZ() * t;
-				spellLocation.add(xtrav, ytrav, ztrav);
-
-				// The black trail.
-				for (double i = 0; i <= 2 * Math.PI; i += Math.PI / 32) {
-					x = Math.cos(t);
-					y = Math.cos(t);
-					z = Math.sin(t);
-					spellLocation.add(x, y, z);
-
-					player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation, 0, black);
-					spellLocation.subtract(x, y, z);
-				}
-
-				// The red trail.
-				player.getWorld().spawnParticle(Particle.REDSTONE, spellLocation, 0, red);
-
-				// Detect a supposed opponent.
-				for (Entity entity : getEntitys(player, range)) {
-					if (isSimilary(entity.getLocation().getX(), spellLocation.getX()) && isSimilary(entity.getLocation().getY() + hitbox, spellLocation.getY()) && isSimilary(entity.getLocation().getZ(), spellLocation.getZ())) {
-						opponent = (LivingEntity) entity;
-						System.out.println("Target : " + opponent);
-					}
-				}
-
-				// Curse on the possible opponent.
-				if (opponent != null) {
-					// Effect on the opponent.
-					PotionEffect glowing = new PotionEffect(PotionEffectType.GLOWING, 20*10, 2, false, false);
-					opponent.addPotionEffect(glowing);
-
-					// Magic spell animation on the opponent.
-					Location opponentLocation = opponent.getLocation();
-					opponent.getWorld().playEffect(opponentLocation, Effect.STEP_SOUND, Material.REDSTONE_BLOCK);
-
-					// Stopping the spell.
-					t = range;
-				}
-
-				spellLocation.subtract(xtrav, ytrav, ztrav);
-
-				if (t >= range) {
-					cancel();
-				}
-
-			}
-		}.runTaskTimer(getPlugin(Main.class), 0, 0);
+		player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1f, 1f);
+		player.spawnParticle(Particle.SNEEZE, eyeLocation.add(eyeLocation.getDirection()), 1);
+		player.sendMessage(ChatColor.DARK_BLUE + "" + ChatColor.BOLD + spellsName[3] + " !");
 
 	}
 	
@@ -304,7 +227,7 @@ public class Main extends JavaPlugin implements Listener {
 		player.sendMessage(ChatColor.LIGHT_PURPLE + "" + ChatColor.ITALIC + spellsName[2] + " !");
 		
 		// Detect a supposed wounded the player is looking at.
-		for (Entity entity : getEntitys(player, 5.0)) {
+		for (Entity entity : getEntitysLooked(player, 5.0)) {
 			if (!asOneTarget) {
 				target = (LivingEntity) entity;
 				System.out.println("Target : " + entity);
@@ -346,16 +269,27 @@ public class Main extends JavaPlugin implements Listener {
 		
 		return dot > 0.99D;
 	}
-	
+
 	// Method returning a list of all the LivingEntity in a field delimited by a range.
 	private List<Entity> getEntitys(Player player, double range){
 		List<Entity> entitys = new ArrayList<Entity>();
-		
+
 		for (Entity e : player.getNearbyEntities(range, range, range)){
 			if (e instanceof LivingEntity){
-				if (getLookingAt(player, (LivingEntity) e)){
-					entitys.add(e);
-				}
+				entitys.add(e);
+			}
+		}
+
+		return entitys;
+	}
+	
+	// Method returning a list of all the LivingEntity in a field delimited by a range looked by the player.
+	private List<Entity> getEntitysLooked(Player player, double range){
+		List<Entity> entitys = getEntitys(player, range);
+		
+		for (Entity e : entitys){
+			if (!getLookingAt(player, (LivingEntity) e)){
+				entitys.remove(e);
 			}
 		}
 		
